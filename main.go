@@ -1,102 +1,90 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
+type User struct {
+	Name       string
+	Age        int
+	Weight     float64
+	Height     int
+	Experience int
+}
+
+type Equipment struct {
+	Helmet    bool
+	Boots     bool
+	Insurance bool
+}
+
+type MountInfo struct {
+	MountName   string
+	MountHeight int
+	Temperature int
+}
 
 func main() {
 
 	fmt.Println("Привет альпинист получи свою карточку для покорения вершин  :) ")
 	fmt.Println("Для начала расскажи мне о себе")
 
-	name, age, weight, height, expirience, helmet, boots, insurance, backpackWeight := InputUser()
+	u := User
+	e := Equipment
+	mi := MountInfo
 
-	ageOk := checkAge(age)
-
-	/*checkExpirience(expirience)*/
-
-	/*equipmentOk := checkEquipment(helmet, boots, insurance)*/
-
-	mountName, mountHeight, temperature := inputMountInfo()
-
-	empty, difficultyLevel := mountainDifficultyLevel(ageOk /*equipmentOk,*/, expirience, mountHeight, temperature, helmet, boots, insurance)
-	if !empty {
-		return
-	}
-
-	alpCard(name, age, weight, height, expirience, helmet, boots, insurance, backpackWeight, difficultyLevel, mountName, mountHeight, temperature)
-
-	/*result, weight := inputProfile()
-	if !result {
-		return
-	}
-
-	resultequip, backpackWeight := equipmentChek()
-	if !resultequip {
-		return
-	}
-
-	if !calculateWeight(weight, backpackWeight) {
-		return
-	}
-
-	weatherCheck() */
 }
 
-func InputUser() (string, int, float64, int, int, string, string, string, float64) {
+func InputUser(u *User, e *Equipment) (string, string, string) {
 
-	var name string
-	var age int
-	var weight float64
-	var height int
-	var expirience int
-	var helmet string
-	var boots string
-	var insurance string
 	var backpackWeight float64
+	var input string
+	var input1 string
+	var input2 string
 
 	fmt.Println("Как тебя зовут?")
-	fmt.Scan(&name)
+	fmt.Scan(&u.Name)
 
 	fmt.Println("Сколько тебе лет?")
-	fmt.Scan(&age)
-
-	if !checkAge(age) {
-		return "", 0, 0, 0, 0, "", "", "", 0
-	}
+	fmt.Scan(&u.Age)
 
 	fmt.Println("Какой у тебя вес?")
-	fmt.Scan(&weight)
+	fmt.Scan(&u.Weight)
 
 	fmt.Println("Какой у тебя рост?")
-	fmt.Scan(&height)
+	fmt.Scan(&u.Height)
 
 	fmt.Println("Какой у тебя опыт покорений гор в годах?")
-	fmt.Scan(&expirience)
-
-	/*if !checkExpirience(expirience) {
-		return "", 0, 0, 0, 0, "", "", "", 0
-	}*/
+	fmt.Scan(&u.Experience)
 
 	fmt.Println("Есть ли у тебя каска? (да/нет)")
-	fmt.Scan(&helmet)
+	fmt.Scan(&input)
 
 	fmt.Println("Есть ли у тебя горные ботинки? (да/нет)")
-	fmt.Scan(&boots)
+	fmt.Scan(&input1)
 
 	fmt.Println("Есть ли у тебя страховка? (да/нет)")
-	fmt.Scan(&insurance)
-
-	/*if !checkEquipment(helmet, boots, insurance) {
-		return "", 0, 0, 0, 0, "", "", "", 0
-	}*/
+	fmt.Scan(&input2)
 
 	fmt.Println("какой вес у твоего рюказака в кг?")
 	fmt.Scan(&backpackWeight)
 
-	if !checkWeight(weight, backpackWeight) {
-		return "", 0, 0, 0, 0, "", "", "", 0
+}
+
+func parseAnswer(input string) (bool, error) {
+
+	switch {
+	case strings.EqualFold(input, "Да"):
+		return true, nil
+	case strings.EqualFold(input, "Нет"):
+		return false, nil
+	default:
+		return false, errors.New("Некорректный ввод")
+
 	}
 
-	return name, age, weight, height, expirience, helmet, boots, insurance, backpackWeight
 }
 
 func checkAge(age int) bool {
@@ -110,56 +98,6 @@ func checkAge(age int) bool {
 	return true
 
 }
-
-func checkExpirience(expirience int) bool {
-
-	if expirience > 0 {
-		fmt.Println("Новые верха ждут :)")
-	} else {
-		fmt.Println("Наберись опыта")
-		return false
-	}
-	return true
-}
-
-/*func checkEquipment(helmet string, boots string, insurance string) bool {
-
-	switch {
-	case helmet == "да":
-	case helmet == "нет":
-		fmt.Println("Тебе нужна каска")
-		return false
-
-	default:
-
-		fmt.Println("Нужно вводить только да или нет")
-		return false
-	}
-
-	switch {
-	case boots == "да":
-	case boots == "нет":
-		fmt.Println("Тебе нужны горные ботинки")
-		return false
-
-	default:
-		fmt.Println("Нужно вводить только да или нет")
-		return false
-	}
-
-	switch {
-	case insurance == "да":
-	case insurance == "нет":
-		fmt.Println("Тебе нужна страховка")
-		return false
-	default:
-
-		fmt.Println("Используй только да/нет")
-		return false
-	}
-
-	return true
-}*/
 
 func checkWeight(weight float64, backpack float64) bool {
 
@@ -205,10 +143,10 @@ func mountainDifficultyLevel(checkAge bool /*checkEquipment bool,*/, expirience 
 	hardLevel := "Сложный уровень"
 
 	switch {
-	case /*&& checkEquipment*/ checkAge && helmet == "да" && boots == "да" && insurance == "да" && expirience >= 3 && mountHeight >= 7000 && temperature <= -30:
+	case checkAge && helmet == "да" && boots == "да" && insurance == "да" && expirience >= 3 && mountHeight >= 7000 && temperature <= -30:
 		fmt.Println("Вам подходит сложный уровень гор")
 		return true, hardLevel
-	case /*&& checkEquipment*/ checkAge && expirience >= 2 && mountHeight <= 6999 && temperature >= -29 && ((helmet == "да" && insurance == "да") || (boots == "да" && insurance == "да")):
+	case checkAge && expirience >= 2 && mountHeight <= 6999 && temperature >= -29 && ((helmet == "да" && insurance == "да") || (boots == "да" && insurance == "да")):
 		fmt.Println("Вам подходит средний уровень сложности")
 		return true, mediumLevel
 	case checkAge && expirience >= 1 && mountHeight <= 2000 && temperature >= 0 && (helmet == "да" || boots == "да" || insurance == "да"):
@@ -224,141 +162,3 @@ func alpCard(name string, age int, weight float64, height int, expirience int, h
 	fmt.Println("----------------------Карточка альпиниста----------------------")
 	fmt.Println("Имя: ", name, "\n Возраст: ", age, "\n Ваш вес: ", weight, "\n Ваш рост:", height, "\n Опыт альпинизма: ", expirience, "\n Есть каска: ", helmet, "\n Есть горные ботинки: ", boots, "\n Есть ли страховка: ", insurance, "\n Вес рюкзака: ", backpackWeight, "\n Название горы: ", mountName, "\n Высота Горы: ", mountHeight, "\n Температура во время восхождения: ", temperature, "\n Ваша допустимая сложность восхождения: ", difficultyLevel, "\n Удачного восхождения!!! :)")
 }
-
-/* func weatherCheck() {
-
-	var weather string
-	var temperature int
-	var mount string
-	var mountHeight int
-
-	fmt.Println("Какую гору ты хочешь покорить?")
-	fmt.Scan(&mount)
-
-	fmt.Println("Какая у нее высота?")
-	fmt.Scan(&mountHeight)
-
-	fmt.Println("Какая ожидается погода?")
-	fmt.Scan(&weather)
-
-	fmt.Println("Какая ожидается температура?")
-	fmt.Scan(&temperature)
-}
-
-/*
-func main() {
-
-	var name string
-	var age int
-	var experience int
-	var height int
-	var weight int
-	var hasHelmet string
-	var hasBoots string
-	var hasInsurance string
-	var backpackWeight int
-	var temperature int
-	var water int
-
-	fmt.Println("Введите ваше имя:")
-	fmt.Scan(&name)
-
-	fmt.Println("Введите ваш возраст:")
-	fmt.Scan(&age)
-
-	if age >= 18 {
-		fmt.Println("Возраст подходит")
-	} else {
-		fmt.Println("Регистрация невозможно")
-		return
-	}
-
-	fmt.Println("Сколько лет опыта в альпинизме?")
-	fmt.Scan(&experience)
-
-	if experience >= 2 {
-		fmt.Println("Достаточно опыта")
-	} else {
-		fmt.Println("Недостаточно опыта")
-		return
-	}
-
-	fmt.Println("Ваш рост (см):")
-	fmt.Scan(&height)
-
-	fmt.Println("Ваш вес (кг):")
-	fmt.Scan(&weight)
-
-	fmt.Println("Есть ли у вас каска? (да/нет)")
-	fmt.Scan(&hasHelmet)
-
-	if hasHelmet == "да" {
-		fmt.Println("Каска есть")
-	} else {
-		fmt.Println("Без каски восхождение запрещено")
-		return
-	}
-
-	fmt.Println("Есть ли у вас ботинки? (да/нет)")
-	fmt.Scan(&hasBoots)
-
-	if hasBoots == "да" {
-		fmt.Println("Горные ботинки есть")
-	} else {
-		fmt.Println("Нужны специальные ботинки")
-		return
-	}
-
-	fmt.Println("Есть ли страховка? (да/нет)")
-	fmt.Scan(&hasInsurance)
-
-	if hasInsurance == "да" {
-		fmt.Println("Страховка оформлена")
-	} else {
-		fmt.Println("Нужно оформить страховку")
-		return
-	}
-
-	fmt.Println("Вес рюкзака (кг):")
-	fmt.Scan(&backpackWeight)
-
-	if backpackWeight <= 20 {
-		fmt.Println("Вес рюкзака нормальный")
-	} else {
-		fmt.Println("Рюкзак слишком тяжёлый")
-		return
-	}
-
-	fmt.Println("Температура на маршруте:")
-	fmt.Scan(&temperature)
-
-	if temperature < 0 {
-		fmt.Println(" На улице мороз")
-	} else {
-		fmt.Println(" Погода тёплая")
-	}
-
-	fmt.Println("Количество воды (литры):")
-	fmt.Scan(&water)
-
-	if water >= 2 {
-		fmt.Println(" Воды достаточно")
-	} else {
-		fmt.Println("Возьмите больше воды")
-	}
-
-	fmt.Println("\n--- Карточка альпиниста ---")
-	fmt.Printf("Имя: %s\n", name)
-	fmt.Printf("Возраст: %d лет\n", age)
-	fmt.Printf("Опыт: %d лет\n", experience)
-	fmt.Printf("Рост: %d см\n", height)
-	fmt.Printf("Вес: %d кг\n", weight)
-	fmt.Printf("Каска: %s\n", hasHelmet)
-	fmt.Printf("Ботинки: %s\n", hasBoots)
-	fmt.Printf("Страховка: %s\n", hasInsurance)
-	fmt.Printf("Вес рюкзака: %d кг\n", backpackWeight)
-	fmt.Printf("Температура: %d °C\n", temperature)
-	fmt.Printf("Вода: %d литров\n", water)
-
-}
-*/
