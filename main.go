@@ -37,12 +37,10 @@ func main() {
 
 }
 
-func InputUser(u *User, e *Equipment) (string, string, string) {
+func InputUser(u *User, e *Equipment) error {
 
 	var backpackWeight float64
 	var input string
-	var input1 string
-	var input2 string
 
 	fmt.Println("Как тебя зовут?")
 	fmt.Scan(&u.Name)
@@ -61,19 +59,31 @@ func InputUser(u *User, e *Equipment) (string, string, string) {
 
 	fmt.Println("Есть ли у тебя каска? (да/нет)")
 	fmt.Scan(&input)
+	helmet, err := parseAnswer()
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Есть ли у тебя горные ботинки? (да/нет)")
-	fmt.Scan(&input1)
+	fmt.Scan(&input)
+	boots, err := parseAnswer()
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Есть ли у тебя страховка? (да/нет)")
-	fmt.Scan(&input2)
+	fmt.Scan(&input)
+	insurance, err := parseAnswer()
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("какой вес у твоего рюказака в кг?")
 	fmt.Scan(&backpackWeight)
 
 }
 
-func parseAnswer(input string) (bool, error) {
+func parseAnswer() (bool, error) {
 
 	switch {
 	case strings.EqualFold(input, "Да"):
