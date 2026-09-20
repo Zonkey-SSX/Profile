@@ -18,6 +18,7 @@ type Equipment struct {
 	Helmet    bool
 	Boots     bool
 	Insurance bool
+	BpWeight  float64
 }
 
 type MountInfo struct {
@@ -31,15 +32,27 @@ func main() {
 	fmt.Println("Привет альпинист получи свою карточку для покорения вершин  :) ")
 	fmt.Println("Для начала расскажи мне о себе")
 
-	u := User
-	e := Equipment
-	mi := MountInfo
+	u := User{}
+	e := Equipment{}
+	mi := MountInfo{}
 
+	err := InputUser(&u, &e)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = checkWeight(&u, &e)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	inputMountInfo(&mi)
 }
 
 func InputUser(u *User, e *Equipment) error {
 
-	var backpackWeight float64
 	var input string
 
 	fmt.Println("Как тебя зовут?")
@@ -47,6 +60,11 @@ func InputUser(u *User, e *Equipment) error {
 
 	fmt.Println("Сколько тебе лет?")
 	fmt.Scan(&u.Age)
+
+	err := checkAge(u)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Какой у тебя вес?")
 	fmt.Scan(&u.Weight)
@@ -59,31 +77,38 @@ func InputUser(u *User, e *Equipment) error {
 
 	fmt.Println("Есть ли у тебя каска? (да/нет)")
 	fmt.Scan(&input)
-	helmet, err := parseAnswer()
+
+	helmet, err := parseAnswer(input)
 	if err != nil {
 		return err
 	}
+	e.Helmet = helmet
 
 	fmt.Println("Есть ли у тебя горные ботинки? (да/нет)")
 	fmt.Scan(&input)
-	boots, err := parseAnswer()
+
+	boots, err := parseAnswer(input)
 	if err != nil {
 		return err
 	}
+	e.Boots = boots
 
 	fmt.Println("Есть ли у тебя страховка? (да/нет)")
 	fmt.Scan(&input)
-	insurance, err := parseAnswer()
+
+	insurance, err := parseAnswer(input)
 	if err != nil {
 		return err
 	}
+	e.Insurance = insurance
 
 	fmt.Println("какой вес у твоего рюказака в кг?")
-	fmt.Scan(&backpackWeight)
+	fmt.Scan(&e.BpWeight)
 
+	return nil
 }
 
-func parseAnswer() (bool, error) {
+func parseAnswer(input string) (bool, error) {
 
 	switch {
 	case strings.EqualFold(input, "Да"):
@@ -97,53 +122,40 @@ func parseAnswer() (bool, error) {
 
 }
 
-func checkAge(age int) bool {
+func checkAge(u *User) error {
 
-	if age >= 18 {
+	if u.Age >= 18 {
 	} else {
-		fmt.Println("Возвращайся когда стукнет 18 ")
-		return false
+		return errors.New("Людям младше 18 лет допуск запрещен")
 	}
-
-	return true
+	return nil
 
 }
 
-func checkWeight(weight float64, backpack float64) bool {
+func checkWeight(u *User, e *Equipment) error {
 
 	var sum float64
 
-	sum = weight * 0.25
+	sum = u.Weight * 0.25
 
-	switch {
-	case backpack > sum:
-		fmt.Println("С такой тяжестью не взлетишь")
-		return false
-
-	default:
+	if e.BpWeight > sum {
+		return errors.New("Рюкзак слишком тяжелый для тебя")
 	}
-
-	return true
+	return nil
 }
 
-func inputMountInfo() (string, int, int) {
+func inputMountInfo(mi *MountInfo) {
 
-	var mountName string
-	var mountHeight int
-	var temperature int
+	fmt.Println("Далее введите данные о предпочтительном восхождении")
 
-	fmt.Println("Далее введите данные о восхождение")
-
-	fmt.Println("Как называется ваша гора?")
-	fmt.Scan(&mountName)
+	fmt.Println("Введите название горы:")
+	fmt.Scan(&mi.MountName)
 
 	fmt.Println("Какая высота у этой горы?")
-	fmt.Scan(&mountHeight)
+	fmt.Scan(&mi.MountHeight)
 
 	fmt.Println("Какая температура ожидается во время восхождени?")
-	fmt.Scan(&temperature)
-
-	return mountName, mountHeight, temperature
+	fmt.Scan(&mi.Temperature)
 }
 
 func mountainDifficultyLevel(checkAge bool /*checkEquipment bool,*/, expirience int, mountHeight int, temperature int, helmet string, boots string, insurance string) (bool, string) {
